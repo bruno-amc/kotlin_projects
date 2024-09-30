@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="4"
+            android:padding="8dp"
+            android:layout_marginBottom="16dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cliente:"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/input_cliente"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nome do Cliente"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Veículo:"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/input_veiculo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Modelo do Veículo"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Placa/TAG:"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/input_placa_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Placa ou TAG"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Telefone:"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/input_telefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Telefone do Cliente"
+                android:inputType="phone"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Data:"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/input_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Data"
+                android:focusable="false"
+                android:clickable="true" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kilometragem:"
+                android:padding="8dp"
+                />
+
+            <EditText
+                android:id="@+id/input_kilometragem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Kilometragem Atual"
+                android:inputType="numberDecimal"/>
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Horímetro:"
+                android:padding="8dp"/>
+
+            <EditText
+                android:id="@+id/input_horimetro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Horímetro Atual"
+                android:inputType="numberDecimal"/>
+        </GridLayout>
+
+
+        <Button
+            android:id="@+id/btn_add_section"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+SEÇÃO"
+            android:layout_gravity="center_horizontal" />
+
+
+        <LinearLayout
+            android:id="@+id/layout_sections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="16dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="10dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

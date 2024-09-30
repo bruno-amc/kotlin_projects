@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ao alterar qualquer dado ou a imagem, clique em 'Salvar Dados'"
+            android:textAlignment="center"
+            android:textSize="15dp"
+            android:textStyle="bold"/>
+
+        <ImageView
+            android:id="@+id/logo_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Logo da Oficina"
+            android:layout_gravity="center_horizontal"
+            />
+
+        <!-- Campo para Upload de Logo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Logo da Oficina" />
+
+        <Button
+            android:id="@+id/button_upload_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Carregar Logo" />
+
+        <!-- Campo para Nome da Oficina -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome da Oficina" />
+
+        <EditText
+            android:id="@+id/editText_nome_oficina"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite o nome da oficina" />
+
+        <!-- Campo para Telefone -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Telefone" />
+
+        <EditText
+            android:id="@+id/editText_telefone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite o telefone"
+            android:inputType="phone" />
+
+        <!-- Campo para Endereço -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Endereço" />
+
+        <EditText
+            android:id="@+id/editText_endereco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite o endereço" />
+
+        <!-- Campo para Email -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email" />
+
+        <EditText
+            android:id="@+id/editText_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite o email"
+            android:inputType="textEmailAddress" />
+
+        <!-- Campo para Outras Informações -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Outras Informações" />
+
+        <EditText
+            android:id="@+id/editText_outras_informacoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite outras informações"
+            android:minLines="3"
+            android:maxLines="5"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+
+        <!-- Botão para Salvar Dados -->
+        <Button
+            android:id="@+id/button_salvar_dados"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Salvar Dados"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp" />
+
+        <Button
+            android:id="@+id/button_deletar_dados"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Limpar Dados"
+            android:layout_gravity="left"
+            android:layout_marginTop="50dp"/>
+    </LinearLayout>
+</ScrollView>

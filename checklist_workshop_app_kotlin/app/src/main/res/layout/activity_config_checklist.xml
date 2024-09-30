@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:id="@+id/config_main"
+    android:background="@drawable/truckandcarimage">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <Button
+                android:id="@+id/btn_manage_sections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gerenciar Seções"
+                android:background="@drawable/button_background"
+                android:fontFamily="@font/crimsontextregular"
+                android:layout_marginBottom="16dp"
+                android:textSize="30sp"/>
+
+
+            <Button
+                android:id="@+id/btn_manage_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Gerenciar Itens"
+                android:background="@drawable/button_background"
+                android:fontFamily="@font/crimsontextregular"
+                android:layout_marginBottom="16dp"
+                android:textSize="30sp"/>
+
+
+            <Button
+                android:id="@+id/btn_company_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Dados da Empresa"
+                android:background="@drawable/button_background"
+                android:fontFamily="@font/crimsontextregular"
+                android:layout_marginBottom="16dp"
+                android:textSize="30sp"/>
+
+
+            <Button
+                android:id="@+id/btn_create_checklist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Criar Checklist"
+                android:background="@drawable/button_background"
+                android:fontFamily="@font/crimsontextregular"
+                android:layout_marginBottom="16dp"
+                android:textSize="30sp"/>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
