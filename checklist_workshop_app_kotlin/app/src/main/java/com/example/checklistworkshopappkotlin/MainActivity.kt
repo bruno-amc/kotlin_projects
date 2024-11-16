@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         // Navegação para o Checklist de Saída
         val btnChecklistSaida: Button = findViewById(R.id.btn_preencher_checklist)
         btnChecklistSaida.setOnClickListener {
-            val intent = Intent(this, ChecklistSaidaActivity::class.java)
+            val intent = Intent(this, PreencherChecklistActivity::class.java)
             startActivity(intent)
         }
 

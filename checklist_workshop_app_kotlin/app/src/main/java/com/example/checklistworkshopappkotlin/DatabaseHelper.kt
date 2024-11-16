@@ -38,7 +38,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_CHECKLIST_SECTION_ID = "section_id"
         const val COLUMN_CHECKLIST_ITEM_ID = "item_id"
 
-        // SQL para criar as tabelas, com IF NOT EXISTS
+        // SQL para criar as tabelas
         private const val CREATE_TABLE_SECTIONS = """
             CREATE TABLE IF NOT EXISTS $TABLE_SECTIONS (
                 $COLUMN_SECTION_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,7 +77,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        // Cria as tabelas se não existirem
         db.execSQL(CREATE_TABLE_SECTIONS)
         db.execSQL(CREATE_TABLE_ITEMS)
         db.execSQL(CREATE_TABLE_CHECKLIST)
@@ -85,7 +84,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Atualiza o banco de dados, se necessário
         db.execSQL("DROP TABLE IF EXISTS $TABLE_CHECKLIST")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_ITEMS")
         db.execSQL("DROP TABLE IF EXISTS $TABLE_SECTIONS")
@@ -114,9 +112,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     // Função para excluir uma seção
     fun deleteSection(sectionId: Long) {
         val db = this.writableDatabase
-        // Excluir também os itens relacionados ao checklist que utilizam essa seção
         db.delete(TABLE_CHECKLIST, "$COLUMN_CHECKLIST_SECTION_ID = ?", arrayOf(sectionId.toString()))
-        // Excluir a própria seção
         db.delete(TABLE_SECTIONS, "$COLUMN_SECTION_ID = ?", arrayOf(sectionId.toString()))
     }
 
@@ -129,7 +125,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return db.insert(TABLE_ITEMS, null, contentValues)
     }
 
-    // Função para atualizar o nome do ITEM
+    // Função para atualizar o nome do item
     fun updateItem(itemId: Long, newName: String) {
         val db = this.writableDatabase
         val contentValues = ContentValues().apply {
@@ -138,17 +134,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.update(TABLE_ITEMS, contentValues, "$COLUMN_ITEM_ID = ?", arrayOf(itemId.toString()))
     }
 
-    // Função para excluir um ITEM
+    // Função para excluir um item
     fun deleteItem(itemId: Long) {
         val db = this.writableDatabase
-        // Excluir também os itens relacionados ao checklist que utilizam essa seção
         db.delete(TABLE_CHECKLIST, "$COLUMN_CHECKLIST_ITEM_ID = ?", arrayOf(itemId.toString()))
-        // Excluir a própria seção
         db.delete(TABLE_ITEMS, "$COLUMN_ITEM_ID = ?", arrayOf(itemId.toString()))
     }
-
-
-
 
     // Função para associar seções e itens ao checklist
     fun addChecklist(checklistName: String, sectionId: Long, itemId: Long): Long {
@@ -159,6 +150,19 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             put(COLUMN_CHECKLIST_ITEM_ID, itemId)
         }
         return db.insert(TABLE_CHECKLIST, null, contentValues)
+    }
+
+    // Função para buscar o ID de um item pelo nome
+    fun getItemIdByName(itemName: String): Long {
+        val db = this.readableDatabase
+        val cursor: Cursor = db.rawQuery("SELECT $COLUMN_ITEM_ID FROM $TABLE_ITEMS WHERE $COLUMN_ITEM_NAME = ?", arrayOf(itemName))
+        return if (cursor.moveToFirst()) {
+            cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ITEM_ID))
+        } else {
+            -1 // Retorna -1 se o item não for encontrado
+        }.also {
+            cursor.close()
+        }
     }
 
     // Função para buscar as seções salvas no banco de dados
@@ -179,8 +183,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return sectionsList
     }
 
-
-    // Função para buscar as ITEMS salvos no banco de dados
+    // Função para buscar os itens salvos no banco de dados
     fun getItems(): List<Item> {
         val itemsList = mutableListOf<Item>()
         val db = this.readableDatabase
@@ -198,33 +201,70 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return itemsList
     }
 
-    // Função para buscar os itens de uma seção específica
-    fun getItemsBySection(sectionId: Long): List<Item> {
-        val itemsList = mutableListOf<Item>()
+    // Função para pegar os dados do checklist baseado no nome
+    // Função para pegar os dados do checklist baseado no nome
+    fun getChecklistByName(checklistName: String): List<ChecklistEntry> {
+        val checklistEntries = mutableListOf<ChecklistEntry>()
+        val db = this.readableDatabase
+        val query = """
+        SELECT sections.nome AS sectionName, items.nome AS itemName
+        FROM checklist
+        JOIN sections ON checklist.section_id = sections.id
+        JOIN items ON checklist.item_id = items.id
+        WHERE checklist.checklist_name = ?
+    """
+        val cursor: Cursor = db.rawQuery(query, arrayOf(checklistName))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val sectionName = cursor.getString(cursor.getColumnIndexOrThrow("sectionName"))
+                val itemName = cursor.getString(cursor.getColumnIndexOrThrow("itemName"))
+                val checklistEntry = ChecklistEntry(sectionName, itemName)
+                checklistEntries.add(checklistEntry)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return checklistEntries
+    }
+
+
+    // Função para obter o ID da seção pelo nome
+    fun getSectionIdByName(sectionName: String): Long? {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT $COLUMN_SECTION_ID FROM $TABLE_SECTIONS WHERE $COLUMN_SECTION_NAME = ?", arrayOf(sectionName))
+        var sectionId: Long? = null
+
+        if (cursor.moveToFirst()) {
+            sectionId = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_SECTION_ID))
+        }
+        cursor.close()
+        return sectionId
+    }
+
+
+
+    // Função para pegar os itens de um checklist específico
+    fun getChecklistItens(checklistName: String): List<String> {
+        val itemList = mutableListOf<String>()
         val db = this.readableDatabase
         val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM $TABLE_ITEMS WHERE $COLUMN_ITEM_ID IN (SELECT $COLUMN_CHECKLIST_ITEM_ID FROM $TABLE_CHECKLIST WHERE $COLUMN_CHECKLIST_SECTION_ID = ?)",
-            arrayOf(sectionId.toString())
+            "SELECT items.nome FROM items JOIN checklist ON items.id = checklist.item_id WHERE checklist.checklist_name = ?",
+            arrayOf(checklistName)
         )
 
         if (cursor.moveToFirst()) {
             do {
-                val itemId = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_ITEM_ID))
                 val itemName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ITEM_NAME))
-                val item = Item(itemId, itemName)
-                itemsList.add(item)
+                itemList.add(itemName)
             } while (cursor.moveToNext())
         }
         cursor.close()
-        return itemsList
+        return itemList
     }
-
 
     // Função para salvar ou atualizar os dados da empresa
     fun saveDadosEmpresa(nomeOficina: String, telefone: String, endereco: String, email: String, logoUri: String?, outrasInformacoes: String) {
         val db = this.writableDatabase
-
-        // Verifica se já existem dados salvos
         val cursor = db.rawQuery("SELECT * FROM $TABLE_EMPRESA", null)
         val contentValues = ContentValues().apply {
             put(COLUMN_NOME_OFICINA, nomeOficina)
@@ -236,14 +276,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         }
 
         if (cursor.count > 0) {
-            // Se os dados já existem, faz um update
             db.update(TABLE_EMPRESA, contentValues, null, null)
         } else {
-            // Se os dados não existem, insere um novo registro
             db.insert(TABLE_EMPRESA, null, contentValues)
         }
-
-        cursor.close() }
+        cursor.close()
+    }
 
     // Função para pegar os dados da tabela EMPRESA
     fun getDadosEmpresa(): Cursor? {
@@ -251,10 +289,49 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return db.rawQuery("SELECT * FROM $TABLE_EMPRESA LIMIT 1", null)
     }
 
-    //Função para deletar os dados da tabela EMPRESA
+    // Função para deletar os dados da tabela EMPRESA
     fun deleteDadosEmpresa(): Int {
         val db = this.writableDatabase
-        return db.delete(TABLE_EMPRESA, null, null)  // Exclui todos os dados da tabela (nome da tabela, where, argumentos do where)
+        return db.delete(TABLE_EMPRESA, null, null)
+    }
+
+    // Função para pegar todos os checklists salvos
+    // Função para pegar todos os checklists salvos
+    fun getChecklists(): List<Checklist> {
+        val checklistList = mutableListOf<Checklist>()
+        val db = this.readableDatabase
+        val cursor: Cursor = db.rawQuery("SELECT DISTINCT $COLUMN_CHECKLIST_NAME FROM $TABLE_CHECKLIST", null)
+
+        if (cursor.moveToFirst()) {
+            do {
+                val checklistName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_CHECKLIST_NAME))
+                val checklist = Checklist(checklistName)
+                checklistList.add(checklist)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return checklistList
+    }
+
+    // Função para salvar ou atualizar um checklist
+    fun saveChecklist(checklistName: String, itens: List<String>) {
+        val db = this.writableDatabase
+        db.delete(TABLE_CHECKLIST, "$COLUMN_CHECKLIST_NAME = ?", arrayOf(checklistName))
+
+        for (item in itens) {
+            val itemId = getItemIdByName(item)
+            val contentValues = ContentValues().apply {
+                put(COLUMN_CHECKLIST_NAME, checklistName)
+                put(COLUMN_CHECKLIST_ITEM_ID, itemId)
+            }
+            db.insert(TABLE_CHECKLIST, null, contentValues)
+        }
+    }
+
+    // Função para deletar um checklist baseado no nome
+    fun deleteChecklistByName(checklistName: String) {
+        val db = this.writableDatabase
+        db.delete(TABLE_CHECKLIST, "$COLUMN_CHECKLIST_NAME = ?", arrayOf(checklistName))
     }
 
 
@@ -274,3 +351,14 @@ data class Item(val id: Long, val name: String)
 
 // Classe de dados para armazenar as seções
 data class Section(val id: Long, val name: String)
+
+// Classe de dados para armazenar checklists
+//data class Checklist(val id: Long, val name: String)
+
+
+data class ChecklistEntry(val sectionName: String, val itemName: String)
+
+// Classe de dados para armazenar checklists
+data class Checklist(val name: String)
+
+

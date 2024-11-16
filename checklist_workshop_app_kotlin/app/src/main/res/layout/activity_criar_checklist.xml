@@ -1,10 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CriarChecklistActivity">
+    android:padding="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Alternar entre Novo Checklist / Editar Checklist"
+            android:textSize="18sp" />
+
+        <ToggleButton
+            android:id="@+id/toggle_novo_ou_editar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textOff="Novo Checklist"
+            android:textOn="Editar Checklist"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            />
+
+        <TextView
+            android:id="@+id/text_view_selecione_um_checklist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecione um Checklist"
+            android:textSize="18sp" />
+
+        <Spinner
+            android:id="@+id/spinner_checklists_salvos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Campo para o nome do checklist -->
+        <TextView
+            android:id="@+id/text_view_nome_do_checklist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome do Checklist"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/editText_nome_checklist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Digite o nome do checklist" />
+
+        <!-- Spinner para selecionar uma seção -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecione uma Seção"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spinner_secoes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/button_add_section"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adicionar Seção"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp" />
+
+        <!-- Spinner para selecionar um item -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecione um Item"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spinner_itens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/button_add_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adicionar Item"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp" />
+
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="?android:attr/listDivider"
+            tools:visibility="visible" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Itens Selecionados"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:id="@+id/layout_itens_selecionados"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <!-- Botão para salvar o checklist -->
+        <Button
+            android:id="@+id/button_save_checklist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Salvar Checklist"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp" />
+    </LinearLayout>
+</ScrollView>

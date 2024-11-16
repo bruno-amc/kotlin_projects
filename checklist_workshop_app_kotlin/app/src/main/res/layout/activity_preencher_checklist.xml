@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:orientation="vertical">
+
+    <!-- Único filho do NestedScrollView -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Spinner para selecionar o checklist -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selecione um Checklist"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_checklists"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
+
+        <!-- Layout para exibir os itens e seções -->
+        <LinearLayout
+            android:id="@+id/layout_checklist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <!-- Seções e itens serão adicionados dinamicamente aqui -->
+        </LinearLayout>
+
+        <!-- Botão para limpar os campos -->
+        <Button
+            android:id="@+id/button_limpar_campos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Limpar Campos"
+            android:layout_margin="16dp" />
+
+        <!-- Botão para gerar PDF -->
+        <Button
+            android:id="@+id/button_gerar_pdf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gerar PDF"
+            android:layout_margin="16dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

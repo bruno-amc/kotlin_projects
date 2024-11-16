@@ -35,7 +35,8 @@ class ActivityConfigChecklists : AppCompatActivity() {
         // Navegação para Criar Checklist (implementar depois)
         val btnCreateChecklist: Button = findViewById(R.id.btn_create_checklist)
         btnCreateChecklist.setOnClickListener {
-            // Código para navegar para Criar Checklist
+            val intent = Intent(this, CriarChecklistActivity::class.java)
+            startActivity(intent)
         }
     }
 }
