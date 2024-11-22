@@ -13,24 +13,6 @@
         android:theme="@style/Theme.MonthlyDepositCalculator"
         tools:targetApi="31">
         <activity
-            android:name=".screen_montly_deposit"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".screen_with_initial_deposit"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -39,6 +21,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".screen_montly_deposit"
+            android:exported="true" />
+
+        <activity
+            android:name=".screen_with_initial_deposit"
+            android:exported="true" />
+
+
     </application>
 
 </manifest>
