@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.monthlydepositcalculator"
+    namespace = "com.example.expense_control_app"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.monthlydepositcalculator"
+        applicationId = "com.example.expense_control_app"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -45,9 +45,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.airbnb.android:lottie:6.5.2")
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
-
-
 }

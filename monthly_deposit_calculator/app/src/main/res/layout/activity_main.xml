@@ -2,9 +2,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:layout_gravity="center">
 
 <LinearLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,7 +14,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@color/background"
-    android:gravity="center">
+    android:gravity="center_horizontal">
 
     <com.airbnb.lottie.LottieAnimationView
     android:id="@+id/lottieAnimationView"
@@ -28,115 +28,33 @@
     android:id="@+id/textView9"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Preencha três campos e o campo vazio será calculado."
+    android:text="Escolha a maneira de cálculo nas opções abaixo"
     android:textColor="@color/textColor"
     android:textStyle="bold"
     android:textAlignment="center"
     android:layout_marginTop="10dp"/>
 
-    <TextView
-    android:id="@+id/textView5"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Número de meses"
-    android:textColor="@color/textColor"
-    android:layout_marginTop="15dp"
-    android:textAlignment="viewStart" />
-
-    <EditText
-    android:id="@+id/editTextNumeroMeses"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Número de Meses (n)"
-    android:textColor="@color/textColor"
-    android:inputType="number" />
-
-    <TextView
-    android:id="@+id/textView6"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Taxa de Júros Mensal (% ao mês)"
-    android:textColor="@color/textColor"
-    android:layout_marginTop="15dp"
-    android:textAlignment="viewStart" />
-
-    <EditText
-    android:id="@+id/editTextJTaxaDeJuros"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Taxa de Juros Mensal (j)"
-    android:textColor="@color/textColor"
-    android:inputType="numberDecimal" />
-
-    <TextView
-    android:id="@+id/textView7"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Valor do Depósito Mensal"
-    android:textColor="@color/textColor"
-    android:layout_marginTop="15dp"
-    android:textAlignment="viewStart" />
-
-    <EditText
-    android:id="@+id/editTextDepositosMensais"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Valor do Depósito Regular (p)"
-    android:textColor="@color/textColor"
-    android:inputType="numberDecimal" />
-
-    <TextView
-    android:id="@+id/textView8"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Valor Final"
-    android:textColor="@color/textColor"
-    android:layout_marginTop="15dp"
-    android:textAlignment="viewStart" />
-
-    <EditText
-    android:id="@+id/editTextSn"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Valor Final (Sn)"
-    android:textColor="@color/textColor"
-    android:inputType="numberDecimal" />
-
     <Button
-    android:id="@+id/buttonCalcular"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Calcular"
-    android:textColor="@color/buttonTextColor"
-    android:backgroundTint="@color/buttonColor"
-    android:layout_marginTop="20dp" />
+        android:id="@+id/buttonMontlyDeposit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calcular sem depósito inicial"
+        android:textColor="@color/buttonTextColor"
+        android:backgroundTint="@color/buttonColor"
+        android:layout_marginTop="20dp" />
 
     <Space
-    android:layout_width="match_parent"
-    android:layout_height="35dp" />
+        android:layout_width="match_parent"
+        android:layout_height="35dp" />
 
     <Button
-    android:id="@+id/buttonLimpar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Limpar Campos"
-    android:textColor="@color/buttonTextColor"
-    android:backgroundTint="@color/buttonColor"
-    android:layout_marginTop="10dp" />
-
-    <Space
-    android:layout_width="match_parent"
-    android:layout_height="35dp" />
-
-    <Button
-    android:id="@+id/buttonEquacao"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Equação utilizada"
-    android:textColor="@color/buttonTextColor"
-    android:backgroundTint="@color/buttonColor"
-    android:layout_marginTop="10dp" />
-
+        android:id="@+id/buttonDepositWithInitialAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Calcular com depósito inicial"
+        android:textColor="@color/buttonTextColor"
+        android:backgroundTint="@color/buttonColor"
+        android:layout_marginTop="10dp" />
 
     </LinearLayout>
 </ScrollView>

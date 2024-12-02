@@ -16,10 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url = uri("https://jitpack.io") }
     }
 }
 
-rootProject.name = "monthly deposit calculator"
+rootProject.name = "expense_control_APP"
 include(":app")
  

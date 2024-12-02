@@ -6,11 +6,11 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher_financas"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_financas_round"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MonthlyDepositCalculator"
+        android:theme="@style/Theme.Expense_control_APP"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
@@ -21,15 +21,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".screen_montly_deposit"
-            android:exported="true" />
-
-        <activity
-            android:name=".screen_with_initial_deposit"
-            android:exported="true" />
-
-
     </application>
 
 </manifest>
