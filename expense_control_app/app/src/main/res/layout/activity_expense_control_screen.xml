@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+
+    <EditText
+        android:id="@+id/editText_new_expense_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Valor R$"
+        android:padding="12dp"
+        android:textSize="18sp"
+        android:inputType="numberDecimal"/>
+
+    <Spinner
+        android:id="@+id/spinner_expense_category"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:spinnerMode="dropdown"
+        android:padding="12dp" />
+
+    <EditText
+        android:id="@+id/editText_new_expense_notes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Observações"
+        android:padding="12dp"
+        android:textSize="18sp"/>
+
+
+    <Button
+        android:id="@+id/button_add_new_expense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adicionar Despesa"
+        android:layout_marginTop="16dp"/>
+
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?android:attr/listDivider" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:id="@+id/expense_list_with_all_infos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="azulEscuro">#05487E</color>
+    <color name="green">#90CD48</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="cinzaClaro">#424141</color>
+    <color name="background">#E0F7FA</color>
+    <color name="buttonColor">#FF7043</color>
+    <color name="textColor">#37474F</color>
+    <color name="buttonTextColor">#FFFFFF</color>
 </resources>

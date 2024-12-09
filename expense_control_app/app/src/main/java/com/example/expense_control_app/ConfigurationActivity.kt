@@ -1,6 +1,8 @@
 package com.example.expense_control_app
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -11,10 +13,13 @@ class ConfigurationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_configuration)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+
+        // Navegação para tela de tipos de despesas
+        val btn_create_expense_type: Button = findViewById(R.id.buttonCreateExpenseType)
+        btn_create_expense_type.setOnClickListener {
+            val intent = Intent(this, ExpenseTypeActivity::class.java)
+            startActivity(intent)
         }
+
     }
 }
