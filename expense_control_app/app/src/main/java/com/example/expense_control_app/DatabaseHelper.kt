@@ -179,4 +179,22 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         cursor.close()
         return categoryId
     }
+
+
+    //Função para buscar despesas entre duas datas
+    fun getExpensesFilteredByDate(startDate: String, endDate: String): Cursor {
+        val db = this.readableDatabase
+
+
+
+        // Tratar a data final para incluir o final do dia
+        val query = """
+        SELECT e.$COLUMN_EXPENSES, e.$COLUMN_EXTRA_NOTES, e.$COLUMN_DATE, c.$COLUMN_EXPENSESTYPE_TYPE
+        FROM $TABLE_EXPENSES e
+        INNER JOIN $TABLE_EXPENSESTYPE c ON e.$COLUMN_EXPENSES_CATEGORY_ID = c.$COLUMN_EXPENSESTYPE_ID
+        WHERE e.$COLUMN_DATE >= ? AND e.$COLUMN_DATE <= ?
+        ORDER BY e.$COLUMN_DATE DESC
+    """
+        return db.rawQuery(query, arrayOf("$startDate 00:00:00", "$endDate 23:59:59"))
+    }
 }
