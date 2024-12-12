@@ -100,7 +100,7 @@ class ExpenseControlScreen : AppCompatActivity() {
 
     //Função para Obter Data e Hora
     private fun getCurrentDateTime(): String {
-        val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+        val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss", java.util.Locale.getDefault())
         return dateFormat.format(java.util.Date())
     }
 

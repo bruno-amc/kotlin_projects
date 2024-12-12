@@ -47,6 +47,46 @@
         android:layout_height="5dp"
         android:background="?android:attr/listDivider" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_select_category_to_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Categoria" />
+
+        <Button
+            android:id="@+id/button_select_start_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Data Inicial"
+            android:layout_marginStart="16dp"/>
+
+        <Button
+            android:id="@+id/button_select_end_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Data Final" />
+
+        <Button
+            android:id="@+id/button_apply_date_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Aplicar Filtros" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="?android:attr/listDivider" />
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
