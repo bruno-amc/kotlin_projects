@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.expense_control_app"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.expense_control_app"
@@ -39,9 +39,12 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.android.support:design:28.0.0")
+    implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.core)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -46,6 +46,7 @@ class ExpenseTypeActivity : AppCompatActivity() {
 
 
 
+
             } else {
                 Toast.makeText(this, "Por favor, insira o item", Toast.LENGTH_SHORT).show()
             }

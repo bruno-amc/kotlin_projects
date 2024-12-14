@@ -1,10 +1,14 @@
 package com.example.expense_control_app
 
+import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
@@ -13,6 +17,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.NestedScrollView
 import java.util.Calendar
 
 class ExpenseControlScreen : AppCompatActivity() {
@@ -25,6 +30,10 @@ class ExpenseControlScreen : AppCompatActivity() {
     private lateinit var expenseListLayout: LinearLayout
     private var startDate: String? = null
     private var endDate: String? = null
+    private lateinit var spinnerCategoryFilter: Spinner
+    private lateinit var buttonStartDate: Button
+    private lateinit var buttonEndDate: Button
+    private lateinit var textViewSomaGastos: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,13 +48,37 @@ class ExpenseControlScreen : AppCompatActivity() {
         editTextNewExpenseNotes = findViewById(R.id.editText_new_expense_notes)
         buttonAddNewExpense = findViewById(R.id.button_add_new_expense)
         expenseListLayout = findViewById(R.id.expense_list_with_all_infos)
+        spinnerCategoryFilter = findViewById(R.id.spinner_category_filter)
+        buttonStartDate = findViewById(R.id.button_select_start_date)
+        buttonEndDate = findViewById(R.id.button_select_end_date)
+        textViewSomaGastos = findViewById(R.id.textViewSomaGastos)
+
+
+        // botão do canto superior esquerdo das engrenagens de configuração que faz navegação para tela de configurações
+        val btn_icon_got_to_screen_configuration: ImageButton = findViewById(R.id.button_icon_configuration)
+        btn_icon_got_to_screen_configuration.setOnClickListener {
+            val intent = Intent(this, ConfigurationActivity::class.java)
+            startActivity(intent)
+        }
 
 
         // botões dos filtros de data e aplicar filtros, limpar filtros
-        val buttonStartDate = findViewById<Button>(R.id.button_select_start_date)
-        val buttonEndDate = findViewById<Button>(R.id.button_select_end_date)
+
         val buttonApplyFilter = findViewById<Button>(R.id.button_apply_date_filter)
         val buttonCleanFilters = findViewById<Button>(R.id.button_remove_date_and_category_filter)
+
+        // BOTÃO PARA ROLAR PARA A PARTE SUPERIOR DA TELA
+        val nestedScrollView = findViewById<NestedScrollView>(R.id.nestedScrollView)
+        val buttonScrollToTop = findViewById<Button>(R.id.button_scroll_to_top)
+        // Rola suavemente para o topo
+        buttonScrollToTop.setOnClickListener {
+            nestedScrollView.smoothScrollTo(0, 0)
+        }
+
+        // Carregar categorias no Spinner
+        loadCategoryFilter()
+
+        setupExpenseCategorySpinner()
 
         // Ação para selecionar a data inicial
         buttonStartDate.setOnClickListener {
@@ -65,14 +98,7 @@ class ExpenseControlScreen : AppCompatActivity() {
 
         // Ação para aplicar o filtro
         buttonApplyFilter.setOnClickListener {
-            if (startDate != null && endDate != null) {
-                // Ajustar o final do dia para a data final
-                val adjustedEndDate = "$endDate 23:59:59"
-
-                loadExpensesFilteredByDate("$startDate 00:00:00", adjustedEndDate)
-            } else {
-                Toast.makeText(this, "Por favor, selecione as datas.", Toast.LENGTH_SHORT).show()
-            }
+            applyFilters()
         }
 
         // Ação para o botão de limpar os filtros de data e categoria
@@ -86,7 +112,7 @@ class ExpenseControlScreen : AppCompatActivity() {
             buttonStartDate.text = "Data Inicial"
 
             // Opcional: Resetar categoria (Spinner, por exemplo)
-            spinnerExpenseCategory.setSelection(0) // Retorna para "Selecione uma categoria"
+            spinnerCategoryFilter.setSelection(0) // Retorna para "Selecione uma categoria"
 
             // Carregar todas as despesas novamente
             loadExpenses()
@@ -134,6 +160,27 @@ class ExpenseControlScreen : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Recarregar as categorias do spinner de inserção de despesas ao retornar para esta tela
+        loadExpenseCategories()
+
+        // Recarregar as categorias no spinner de filtro
+        loadCategoryFilter()
+    }
+
+    private fun applyFilters() {
+        val selectedCategory = spinnerCategoryFilter.selectedItem.toString()
+        val categoryId = if (selectedCategory != "Todas as Categorias") dbHelper.getCategoryIdByName(selectedCategory) else null
+
+        val startDateFormatted = startDate?.let { "$it 00:00:00" }
+        val endDateFormatted = endDate?.let { "$it 23:59:59" }
+
+        // Carregar despesas filtradas
+        loadExpensesFiltered(categoryId, startDateFormatted, endDateFormatted)
+        Toast.makeText(this, "Filtro Aplicado", Toast.LENGTH_SHORT).show()
+    }
+
     private fun showDatePickerDialog(onDateSelected: (String) -> Unit) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -148,11 +195,12 @@ class ExpenseControlScreen : AppCompatActivity() {
         datePickerDialog.show()
     }
 
-    // Função para carregar as categorias no Spinner
+    // Função para carregar as categorias no Spinner da parte de inserção de nova despesa
     private fun loadExpenseCategories() {
         val categories = mutableListOf<String>()
         // Adicionar a opção inicial
         categories.add("Selecione uma categoria")
+
 
         val cursor = dbHelper.getAllExpenseTypes()
 
@@ -163,6 +211,11 @@ class ExpenseControlScreen : AppCompatActivity() {
             } while (cursor.moveToNext())
         }
         cursor?.close()
+
+        // Verificar se existem categorias além de "Selecione uma categoria"
+        if (categories.size == 1) { // Significa que apenas a opção inicial está presente
+            Toast.makeText(this, "Nenhuma categoria cadastrada. Insira categorias nas configurações.", Toast.LENGTH_LONG).show()
+        }
 
         // Configurar o Spinner com as categorias
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
@@ -177,35 +230,128 @@ class ExpenseControlScreen : AppCompatActivity() {
         return dateFormat.format(java.util.Date())
     }
 
-    //método para atualizar a exibição quando usamos os filtros por datas
-    private fun loadExpensesFilteredByDate(startDate: String, endDate: String) {
-        expenseListLayout.removeAllViews()
+    // função para avisar o usuário cadastrar uma categoria se o spinner estiver vazio
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupExpenseCategorySpinner() {
+        spinnerExpenseCategory.setOnTouchListener { _, _ ->
+            // Verifica se o Spinner está vazio (apenas com a opção inicial)
+            if ((spinnerExpenseCategory.adapter?.count ?: 0) <= 1) {
+                Toast.makeText(this, "Nenhuma categoria cadastrada. Insira categorias nas configurações.", Toast.LENGTH_LONG).show()
+            }
+            false // Retorna false para permitir que o Spinner abra (se necessário)
+        }
+    }
 
-        val cursor = dbHelper.getExpensesFilteredByDate(startDate, endDate)
+    //método para atualizar a exibição quando usamos os filtros por datas e o filtro de categorias
+    private fun loadExpensesFiltered(categoryId: Long?, startDate: String?, endDate: String?) {
+        expenseListLayout.removeAllViews()
+        var total = 0.0
+
+        val cursor = dbHelper.getFilteredExpenses(categoryId, startDate, endDate)
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                val expenseValue = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSES))
-                val expenseNotes = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXTRA_NOTES))
-                val expenseDate = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE))
-                val expenseCategory = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSESTYPE_TYPE))
+                // Garantir que as colunas existem
+                val expenseIdIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_EXPENSES_ID)
+                val expenseValueIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_EXPENSES)
+                val expenseNotesIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_EXTRA_NOTES)
+                val expenseDateIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE)
+                val expenseCategoryIndex = cursor.getColumnIndex(DatabaseHelper.COLUMN_EXPENSESTYPE_TYPE)
 
-                // Criar layout para cada despesa
-                val expenseLayout = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(8, 8, 8, 8)
+                if (expenseIdIndex != -1 && expenseValueIndex != -1 && expenseNotesIndex != -1 &&
+                    expenseDateIndex != -1 && expenseCategoryIndex != -1) {
+
+                    // Obter valores
+                    val expenseId = cursor.getLong(expenseIdIndex)
+                    val expenseValue = cursor.getDouble(expenseValueIndex)
+                    val expenseNotes = cursor.getString(expenseNotesIndex)
+                    val expenseDate = cursor.getString(expenseDateIndex)
+                    val expenseCategory = cursor.getString(expenseCategoryIndex)
+
+                    // Incrementar o total
+                    total += expenseValue
+
+                    // Criar TextView e Botão de Exclusão
+                    val textViewExpenseInfo = TextView(this).apply {
+                        text = "R$ %.2f - $expenseCategory\n$expenseDate\nNotas: $expenseNotes\n".format(expenseValue)
+                        textSize = 16f
+                    }
+
+                    val buttonDeleteExpense = Button(this).apply {
+                        text = "Excluir"
+                        textSize = 14f
+                        setOnClickListener {
+                            try {
+                                showDeleteExpenseDialog(expenseId)
+                            } catch (e: Exception) {
+                                Toast.makeText(this@ExpenseControlScreen, "Erro ao excluir despesa.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
+                    // Criar Layout Horizontal para TextView e Botão
+                    val expenseLayout = LinearLayout(this).apply {
+                        orientation = LinearLayout.HORIZONTAL
+                        setPadding(8, 8, 8, 8)
+                        addView(textViewExpenseInfo, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                        addView(buttonDeleteExpense)
+                    }
+
+                    // Adicionar o Layout ao Container
+                    expenseListLayout.addView(expenseLayout)
                 }
-
-                val textViewExpenseInfo = TextView(this).apply {
-                    text = "R$ %.2f - $expenseCategory\n$expenseDate\nNotas: $expenseNotes".format(expenseValue)
-                    textSize = 16f
-                }
-
-                expenseLayout.addView(textViewExpenseInfo)
-                expenseListLayout.addView(expenseLayout)
             } while (cursor.moveToNext())
         }
 
         cursor?.close()
+
+        // Atualizar o Total no TextView
+        val formatador = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("pt", "BR"))
+        textViewSomaGastos.text = "Total: ${formatador.format(total)}"
+    }
+
+
+
+
+    // função para cerregar as categorias no filtro/spinner de categorias
+    private fun loadCategoryFilter() {
+        val categories = mutableListOf("Todas as Categorias") // Opção padrão
+        val cursor = dbHelper.getAllExpenseTypes()
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                val categoryName = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSESTYPE_TYPE))
+                categories.add(categoryName)
+            } while (cursor.moveToNext())
+        }
+        cursor?.close()
+
+        // Configurar o Spinner com as categorias
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategoryFilter.adapter = adapter
+    }
+
+
+    //função para mostrar o diálogo de confirmação do botão de deleção que tem ao lado de cada item
+    private fun showDeleteExpenseDialog(expenseId: Long) {
+        AlertDialog.Builder(this)
+            .setTitle("Excluir Despesa")
+            .setMessage("Tem certeza de que deseja excluir esta despesa?")
+            .setPositiveButton("Sim") { _, _ ->
+                dbHelper.deleteExpense(expenseId)
+                Toast.makeText(this, "Despesa excluída com sucesso!", Toast.LENGTH_SHORT).show()
+
+                // Reaplicar os filtros atualmente ativos
+                val selectedCategory = spinnerCategoryFilter.selectedItem.toString()
+                val categoryId = if (selectedCategory != "Todas as Categorias") dbHelper.getCategoryIdByName(selectedCategory) else null
+
+                val startDateFormatted = startDate?.let { "$it 00:00:00" }
+                val endDateFormatted = endDate?.let { "$it 23:59:59" }
+
+                loadExpensesFiltered(categoryId, startDateFormatted, endDateFormatted)
+            }
+            .setNegativeButton("Não", null)
+            .show()
     }
 
 
@@ -213,32 +359,53 @@ class ExpenseControlScreen : AppCompatActivity() {
     //Função para carregar as despesas
     private fun loadExpenses() {
         expenseListLayout.removeAllViews()
+        var total = 0.0
 
         val cursor = dbHelper.getAllExpenses()
         if (cursor != null && cursor.moveToFirst()) {
             do {
+                val expenseId = cursor.getLong(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSES_ID))
                 val expenseValue = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSES))
                 val expenseNotes = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXTRA_NOTES))
                 val expenseDate = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DATE))
                 val expenseCategory = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_EXPENSESTYPE_TYPE))
 
-                // Criar um layout para cada despesa
-                val expenseLayout = LinearLayout(this).apply {
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(8, 8, 8, 8)
-                }
+                // Incrementar o total
+                total += expenseValue
 
+                // Criar TextView e Botão de Exclusão
                 val textViewExpenseInfo = TextView(this).apply {
-                    text = "R$ %.2f - $expenseCategory\n$expenseDate\nNotas: $expenseNotes".format(expenseValue)
+                    text = "R$ %.2f - $expenseCategory\n$expenseDate\nNotas: $expenseNotes\n".format(expenseValue)
                     textSize = 16f
                 }
 
-                expenseLayout.addView(textViewExpenseInfo)
+                val buttonDeleteExpense = Button(this).apply {
+                    text = "Excluir"
+                    textSize = 14f
+                    setOnClickListener {
+                        showDeleteExpenseDialog(expenseId)
+                    }
+                }
+
+                // Criar Layout Horizontal para TextView e Botão
+                val expenseLayout = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    setPadding(8, 8, 8, 8)
+                    addView(textViewExpenseInfo, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                    addView(buttonDeleteExpense)
+                }
+
+                // Adicionar o Layout ao Container
                 expenseListLayout.addView(expenseLayout)
+
             } while (cursor.moveToNext())
         }
 
         cursor?.close()
+
+        // Atualizar o Total no TextView
+        val formatador = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("pt", "BR"))
+        textViewSomaGastos.text = "Total: ${formatador.format(total)}"
     }
 
 }

@@ -151,7 +151,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         val db = this.readableDatabase
         return db.rawQuery(
             """
-        SELECT e.$COLUMN_EXPENSES, e.$COLUMN_EXTRA_NOTES, e.$COLUMN_DATE, c.$COLUMN_EXPENSESTYPE_TYPE
+        SELECT e.$COLUMN_EXPENSES_ID AS id, e.$COLUMN_EXPENSES AS expense, e.$COLUMN_EXTRA_NOTES AS notes, 
+               e.$COLUMN_DATE AS date, c.$COLUMN_EXPENSESTYPE_TYPE AS type
         FROM $TABLE_EXPENSES e
         INNER JOIN $TABLE_EXPENSESTYPE c ON e.$COLUMN_EXPENSES_CATEGORY_ID = c.$COLUMN_EXPENSESTYPE_ID
         ORDER BY e.$COLUMN_DATE DESC
@@ -197,4 +198,53 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     """
         return db.rawQuery(query, arrayOf("$startDate 00:00:00", "$endDate 23:59:59"))
     }
+
+    // função para deletar uma despesa usando o botão de excluir que tem ao lado de cada despesa
+    fun deleteExpense(expenseId: Long): Boolean {
+        val db = this.writableDatabase
+        val rowsDeleted = db.delete(TABLE_EXPENSES, "$COLUMN_EXPENSES_ID = ?", arrayOf(expenseId.toString()))
+        return rowsDeleted > 0
+    }
+
+    //função para buscar despesas com base na categoria e datas
+    fun getFilteredExpenses(categoryId: Long?, startDate: String?, endDate: String?): Cursor {
+        val db = this.readableDatabase
+        val selectionArgs = mutableListOf<String>()
+        val selectionBuilder = StringBuilder()
+
+        // Filtro de categoria
+        if (categoryId != null) {
+            selectionBuilder.append("e.$COLUMN_EXPENSES_CATEGORY_ID = ?")
+            selectionArgs.add(categoryId.toString())
+        }
+
+        // Filtro de datas
+        if (startDate != null && endDate != null) {
+            if (selectionBuilder.isNotEmpty()) selectionBuilder.append(" AND ")
+            selectionBuilder.append("e.$COLUMN_DATE BETWEEN ? AND ?")
+            selectionArgs.add(startDate)
+            selectionArgs.add(endDate)
+        } else if (startDate != null) {
+            if (selectionBuilder.isNotEmpty()) selectionBuilder.append(" AND ")
+            selectionBuilder.append("e.$COLUMN_DATE >= ?")
+            selectionArgs.add(startDate)
+        } else if (endDate != null) {
+            if (selectionBuilder.isNotEmpty()) selectionBuilder.append(" AND ")
+            selectionBuilder.append("e.$COLUMN_DATE <= ?")
+            selectionArgs.add(endDate)
+        }
+
+        // Consulta SQL com JOIN
+        val query = """
+        SELECT e.$COLUMN_EXPENSES_ID AS id, e.$COLUMN_EXPENSES, e.$COLUMN_EXTRA_NOTES, e.$COLUMN_DATE, c.$COLUMN_EXPENSESTYPE_TYPE
+        FROM $TABLE_EXPENSES e
+        INNER JOIN $TABLE_EXPENSESTYPE c ON e.$COLUMN_EXPENSES_CATEGORY_ID = c.$COLUMN_EXPENSESTYPE_ID
+        ${if (selectionBuilder.isNotEmpty()) "WHERE $selectionBuilder" else ""}
+        ORDER BY e.$COLUMN_DATE DESC
+    """
+
+        return db.rawQuery(query, selectionArgs.toTypedArray())
+    }
+
+
 }

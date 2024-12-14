@@ -1,139 +1,232 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nestedScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-
-    <EditText
-        android:id="@+id/editText_new_expense_value"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Valor R$"
-        android:padding="12dp"
-        android:textSize="18sp"
-        android:inputType="numberDecimal"/>
-
-    <Spinner
-        android:id="@+id/spinner_expense_category"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:spinnerMode="dropdown"
-        android:padding="12dp" />
-
-    <EditText
-        android:id="@+id/editText_new_expense_notes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Observações"
-        android:padding="12dp"
-        android:textSize="18sp"/>
-
-
-    <Button
-        android:id="@+id/button_add_new_expense"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Adicionar Despesa"
-        android:layout_marginTop="16dp"/>
-
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?android:attr/listDivider" />
+    android:padding="16dp"
+    android:background="@color/background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <!-- Campos de Edit text para inserção de Despesas -->
 
-           <TextView
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="Filtros"
-               />
-        </LinearLayout>
-
-        <!-- Botões de Categoria e Datas em uma linha -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button_select_category_to_filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Categoria" />
-
-            <Button
-                android:id="@+id/button_select_start_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Data Inicial"
-                android:layout_marginStart="16dp"/>
-
-            <Button
-                android:id="@+id/button_select_end_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="Data Final" />
-
-
-        </LinearLayout>
-        <!-- Botão de Aplicar Filtros em uma nova linha -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/button_apply_date_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Aplicar Filtros" />
-
-        <Button
-            android:id="@+id/button_remove_date_and_category_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Limpar Filtros"
-            android:layout_marginStart="50dp"/>
-        </LinearLayout>
-    </LinearLayout>
-
-    <View
-        android:id="@+id/divider2"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="?android:attr/listDivider" />
-
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
         android:layout_marginTop="16dp">
+        <EditText
+            android:id="@+id/editText_new_expense_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:hint="Valor R$"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:inputType="numberDecimal"
+            android:layout_marginTop="12dp" />
+        <ImageButton
+            android:id="@+id/button_icon_configuration"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/iconeconfiguracao"
+            android:background="@null"
+            android:padding="8dp"
+            android:scaleType="centerInside" />
+    </LinearLayout>
 
+        <Spinner
+            android:id="@+id/spinner_expense_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:spinnerMode="dropdown"
+            android:padding="12dp" />
+
+        <EditText
+            android:id="@+id/editText_new_expense_notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Observações"
+            android:inputType="text"
+            android:padding="12dp"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/button_add_new_expense"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adicionar Despesa"
+            android:layout_marginTop="16dp" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <!-- Filtros -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Filtros" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Spinner
+                    android:id="@+id/spinner_category_filter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:spinnerMode="dropdown"
+                    android:padding="12dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="5dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+
+                <!-- Botões de data inicial e final -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp">
+                <Button
+                    android:id="@+id/button_select_start_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Data Inicial"
+                    android:layout_marginStart="16dp" />
+                <Button
+                    android:id="@+id/button_select_end_date"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:text="Data Final" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Botões de Filtragem -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp">
+
+                    <Button
+                        android:id="@+id/button_apply_date_filter"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="Aplicar Filtros"
+                        android:layout_marginEnd="8dp" />
+
+                    <Button
+                        android:id="@+id/button_remove_date_and_category_filter"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Limpar Filtros"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <!-- Total -->
+        <TextView
+            android:id="@+id/textViewSomaGastos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: "
+            android:textSize="19sp"
+            android:textStyle="bold"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:gravity="center"/>
+
+        <View
+            android:id="@+id/divider3"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <!-- Lista de Despesas -->
         <LinearLayout
             android:id="@+id/expense_list_with_all_infos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="16dp" >
+
 
         </LinearLayout>
-    </ScrollView>
 
-</LinearLayout>
+        <!-- Botão de "Ir para o Topo" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/button_scroll_to_top"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ir para o topo"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            />
+
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
