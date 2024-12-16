@@ -3,6 +3,7 @@ package com.example.expense_control_app
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
@@ -31,10 +32,15 @@ class ExpenseControlScreen : AppCompatActivity() {
     private var startDate: String? = null
     private var endDate: String? = null
     private lateinit var spinnerCategoryFilter: Spinner
-    private lateinit var buttonStartDate: Button
-    private lateinit var buttonEndDate: Button
+    private lateinit var buttonStartDate: Button //data inicial do campo de filtro
+    private lateinit var buttonEndDate: Button //data final do campo de filtro
     private lateinit var textViewSomaGastos: TextView
+    private lateinit var buttonSelectDate: Button //data para a parte de criação de nova despesa
+    private lateinit var buttonSelectTime: Button //hora para a parte de criação de nova despesa
+    private var selectedDateCalendar: String? = null  // variável para data para a parte de criação de nova despesa
+    private var selectedTimeClock: String? = null // variável para hora para a parte de criação de nova despesa
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -52,6 +58,12 @@ class ExpenseControlScreen : AppCompatActivity() {
         buttonStartDate = findViewById(R.id.button_select_start_date)
         buttonEndDate = findViewById(R.id.button_select_end_date)
         textViewSomaGastos = findViewById(R.id.textViewSomaGastos)
+        buttonSelectDate = findViewById(R.id.button_select_date)
+        buttonSelectTime = findViewById(R.id.button_select_time)
+
+        // Estado inicial dos botões de Adicionar Despesas e de clicar na Hora
+        buttonSelectTime.isEnabled = false // Hora congelada, só libera dps que a data for escolhida
+        buttonAddNewExpense.isEnabled = true // Adicionar despesa liberado, só congela se uma data for escolhida até que a hora tbm seja escolhida (obrigar usuário a escolher data + hora).
 
 
         // botão do canto superior esquerdo das engrenagens de configuração que faz navegação para tela de configurações
@@ -75,6 +87,32 @@ class ExpenseControlScreen : AppCompatActivity() {
             nestedScrollView.smoothScrollTo(0, 0)
         }
 
+
+        // ação para escolher a data na parte de criação de nova despesa
+        buttonSelectDate.setOnClickListener {
+            showDatePickerDialog { selectedDate ->
+                selectedDateCalendar = selectedDate
+                buttonSelectDate.text = " $selectedDate "
+                Toast.makeText(this, "Data escolhida: $selectedDate\n Escolha a Hora / Minuto", Toast.LENGTH_SHORT).show()
+                // Descongela o botão de hora
+                buttonSelectTime.isEnabled = true
+                // Congela o botão de adicionar despesa
+                buttonAddNewExpense.isEnabled = false
+            }
+        }
+        //ação para escolher a hora na parte de criação de nova despesa
+        buttonSelectTime.setOnClickListener {
+            showTimePickerDialog { selectedTime ->
+                selectedTimeClock = selectedTime
+                buttonSelectTime.text = " $selectedTime "
+                Toast.makeText(this, "Hora escolhida: $selectedTime", Toast.LENGTH_SHORT).show()
+                // Descongela o botão de adicionar despesa
+                buttonAddNewExpense.isEnabled = true
+
+            }
+        }
+
+
         // Carregar categorias no Spinner
         loadCategoryFilter()
 
@@ -85,6 +123,7 @@ class ExpenseControlScreen : AppCompatActivity() {
             showDatePickerDialog { selectedDate ->
                 startDate = selectedDate
                 buttonStartDate.text = "Início: $selectedDate"
+
             }
         }
 
@@ -133,19 +172,35 @@ class ExpenseControlScreen : AppCompatActivity() {
             val expenseValue = editTextNewExpenseValue.text.toString().toDoubleOrNull()
             val expenseNotes = editTextNewExpenseNotes.text.toString()
 
-            val currentDate = getCurrentDateTime()
+            val (currentDate, currentTime) = getCurrentDateTime()
+
+            val finalDateTime = when {
+                selectedDateCalendar != null && selectedTimeClock != null -> "$selectedDateCalendar $selectedTimeClock:00"
+                selectedDateCalendar != null -> "$selectedDateCalendar $currentTime"
+                else -> currentDate
+            }
+
 
             if (expenseValue != null && selectedCategory != "Selecione uma categoria") {
                 val categoryId = dbHelper.getCategoryIdByName(selectedCategory)
 
                 if (categoryId != null) {
-                    dbHelper.addExpense(expenseValue, expenseNotes, currentDate, categoryId)
+                    dbHelper.addExpense(expenseValue, expenseNotes, finalDateTime, categoryId)
 
                     Toast.makeText(this, "Despesa adicionada na categoria $selectedCategory", Toast.LENGTH_SHORT).show()
 
                     editTextNewExpenseValue.text.clear()
                     editTextNewExpenseNotes.text.clear()
-                    spinnerExpenseCategory.setSelection(0) // Retorna o Spinner para a posição inicial
+                    spinnerExpenseCategory.setSelection(0)
+
+                    selectedDateCalendar = null
+                    selectedTimeClock = null
+                    buttonSelectDate.text = "Selecionar Data"
+                    buttonSelectTime.text = "Selecionar Hora"
+
+                    buttonSelectTime.isEnabled = false
+                    buttonAddNewExpense.isEnabled = true
+
                     loadExpenses()
                 } else {
                     Toast.makeText(this, "Erro ao encontrar a categoria selecionada.", Toast.LENGTH_SHORT).show()
@@ -158,6 +213,7 @@ class ExpenseControlScreen : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     override fun onResume() {
@@ -180,6 +236,22 @@ class ExpenseControlScreen : AppCompatActivity() {
         loadExpensesFiltered(categoryId, startDateFormatted, endDateFormatted)
         Toast.makeText(this, "Filtro Aplicado", Toast.LENGTH_SHORT).show()
     }
+
+    // Função para exibir o TimePickerDialog
+    private fun showTimePickerDialog(onTimeSelected: (String) -> Unit) {
+        val calendar = Calendar.getInstance()
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+
+        val timePickerDialog = TimePickerDialog(this, { _, selectedHour, selectedMinute ->
+            val selectedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+            onTimeSelected(selectedTime) // Retorna o horário selecionado
+        }, hour, minute, true) // 'true' para formato 24h
+
+        timePickerDialog.show()
+    }
+
+
 
     private fun showDatePickerDialog(onDateSelected: (String) -> Unit) {
         val calendar = Calendar.getInstance()
@@ -214,7 +286,7 @@ class ExpenseControlScreen : AppCompatActivity() {
 
         // Verificar se existem categorias além de "Selecione uma categoria"
         if (categories.size == 1) { // Significa que apenas a opção inicial está presente
-            Toast.makeText(this, "Nenhuma categoria cadastrada. Insira categorias nas configurações.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Nenhuma categoria cadastrada.\nInsira categorias nas configurações.", Toast.LENGTH_LONG).show()
         }
 
         // Configurar o Spinner com as categorias
@@ -225,9 +297,14 @@ class ExpenseControlScreen : AppCompatActivity() {
     }
 
     //Função para Obter Data e Hora
-    private fun getCurrentDateTime(): String {
+    private fun getCurrentDateTime(): Pair<String, String> {
+
+        //obeter data e hora
         val dateFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss", java.util.Locale.getDefault())
-        return dateFormat.format(java.util.Date())
+
+        //Obter somente a hora, sem a data
+        val timeFormat = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
+        return Pair( dateFormat.format(java.util.Date()), timeFormat.format(java.util.Date()))
     }
 
     // função para avisar o usuário cadastrar uma categoria se o spinner estiver vazio
@@ -236,7 +313,7 @@ class ExpenseControlScreen : AppCompatActivity() {
         spinnerExpenseCategory.setOnTouchListener { _, _ ->
             // Verifica se o Spinner está vazio (apenas com a opção inicial)
             if ((spinnerExpenseCategory.adapter?.count ?: 0) <= 1) {
-                Toast.makeText(this, "Nenhuma categoria cadastrada. Insira categorias nas configurações.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Nenhuma categoria cadastrada.\nInsira categorias nas configurações.", Toast.LENGTH_LONG).show()
             }
             false // Retorna false para permitir que o Spinner abra (se necessário)
         }
@@ -272,7 +349,7 @@ class ExpenseControlScreen : AppCompatActivity() {
 
                     // Criar TextView e Botão de Exclusão
                     val textViewExpenseInfo = TextView(this).apply {
-                        text = "R$ %.2f - $expenseCategory\n$expenseDate\nNotas: $expenseNotes\n".format(expenseValue)
+                        text = "R$ %.2f - $expenseCategory\n$expenseDate\nObs: $expenseNotes\n".format(expenseValue)
                         textSize = 16f
                     }
 
@@ -375,7 +452,7 @@ class ExpenseControlScreen : AppCompatActivity() {
 
                 // Criar TextView e Botão de Exclusão
                 val textViewExpenseInfo = TextView(this).apply {
-                    text = "R$ %.2f - $expenseCategory\n$expenseDate\nNotas: $expenseNotes\n".format(expenseValue)
+                    text = "R$ %.2f - $expenseCategory\n$expenseDate\nObs: $expenseNotes\n".format(expenseValue)
                     textSize = 16f
                 }
 
