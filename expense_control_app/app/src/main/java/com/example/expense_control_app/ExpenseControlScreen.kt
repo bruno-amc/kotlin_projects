@@ -452,7 +452,13 @@ class ExpenseControlScreen : AppCompatActivity() {
 
                 // Criar TextView e Botão de Exclusão
                 val textViewExpenseInfo = TextView(this).apply {
-                    text = "R$ %.2f - $expenseCategory\n$expenseDate\nObs: $expenseNotes\n".format(expenseValue)
+                    text = String.format(
+                        "R$ %.2f - %s\n%s\nObs: %s\n",
+                        expenseValue,
+                        expenseCategory ?: "Sem categoria",
+                        expenseDate ?: "Data não registrada",
+                        expenseNotes ?: "Sem observações"
+                    )
                     textSize = 16f
                 }
 
@@ -484,6 +490,7 @@ class ExpenseControlScreen : AppCompatActivity() {
         val formatador = java.text.NumberFormat.getCurrencyInstance(java.util.Locale("pt", "BR"))
         textViewSomaGastos.text = "Total: ${formatador.format(total)}"
     }
+
 
 }
 
