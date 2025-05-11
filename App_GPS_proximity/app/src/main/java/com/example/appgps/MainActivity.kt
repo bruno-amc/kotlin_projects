@@ -20,12 +20,22 @@ import kotlin.math.*
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 
 
+class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
-
-class MainActivity : AppCompatActivity() {
-
+    private var marcadorOutro: Marker? = null
+    private var marcadorMeu: Marker? = null
+    private lateinit var googleMap: GoogleMap
     private lateinit var editNomeDispositivo: EditText
     private lateinit var editIntervaloEnvio: EditText
     private lateinit var editDistanciaAlerta: EditText
@@ -43,6 +53,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val mapFragment = supportFragmentManager
+            .findFragmentById(R.id.mapFragment) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         // Inicializa os componentes da interface
         editNomeDispositivo = findViewById(R.id.editNomeDispositivo)
@@ -76,6 +90,15 @@ class MainActivity : AppCompatActivity() {
             } else {
                 pararTransmissao()
             }
+        }
+    }
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+
+        obterLocalizacaoAtual { lat, lon ->
+            val localAtual = LatLng(lat, lon)
+            googleMap.addMarker(MarkerOptions().position(localAtual).title("Você está aqui"))
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(localAtual, 16f))
         }
     }
 
@@ -143,9 +166,40 @@ class MainActivity : AppCompatActivity() {
                 .addOnFailureListener {
                     Log.e("FIREBASE_LOG", "Erro ao salvar coordenadas: ${it.message}")
                 }
+
+            // 👇 Atualiza o próprio marcador no mapa
+            val minhaPosicao = LatLng(latitude, longitude)
+            runOnUiThread {
+                if (::googleMap.isInitialized) {
+                    if (marcadorMeu == null) {
+                        marcadorMeu = googleMap.addMarker(
+                            MarkerOptions().position(minhaPosicao).title("Você")
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                        )
+                    } else {
+                        marcadorMeu?.position = minhaPosicao
+                        centralizarMapaSeAmbosPresentes()
+                    }
+                }
+            }
         }
     }
 
+
+
+    private fun centralizarMapaSeAmbosPresentes() {
+        if (::googleMap.isInitialized && marcadorMeu != null && marcadorOutro != null) {
+            val builder = LatLngBounds.Builder()
+            builder.include(marcadorMeu!!.position)
+            builder.include(marcadorOutro!!.position)
+            val bounds = builder.build()
+
+            val padding = 100 // margem (em pixels) ao redor dos pontos
+            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
+
+            googleMap.animateCamera(cameraUpdate)
+        }
+    }
 
     private fun calcularDistanciaEmMetros(
         lat1: Double, lon1: Double,
@@ -181,7 +235,27 @@ class MainActivity : AppCompatActivity() {
                             val lon = filho.child("longitude").getValue(Double::class.java)
 
                             if (lat != null && lon != null) {
+                                val localOutro = LatLng(lat, lon)
                                 val distancia = calcularDistanciaEmMetros(minhaLat, minhaLon, lat, lon)
+
+                                // Atualiza ou cria o marcador do outro aparelho
+                                runOnUiThread {
+                                    if (::googleMap.isInitialized) {
+                                        if (marcadorOutro == null) {
+                                            marcadorOutro = googleMap.addMarker(
+                                                MarkerOptions().position(localOutro).title("Outro aparelho")
+                                            )
+                                        } else {
+                                            marcadorOutro?.position = localOutro
+                                            centralizarMapaSeAmbosPresentes()
+                                        }
+                                    }
+
+                                    textDistanciaAtual.text = "Distância até $nomeOutro: %.2f m".format(distancia)
+                                    if (checkboxAlertaSonoro.isChecked && distancia < distanciaMinima) {
+                                        emitirAlertaSonoro()
+                                    }
+                                }
 
                                 Log.d("DISTANCIA_DEBUG", "Distância calculada: $distancia metros entre $nomeDispositivoAtual e $nomeOutro")
 
