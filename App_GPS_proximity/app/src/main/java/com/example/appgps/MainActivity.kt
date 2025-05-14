@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.util.Log
 import com.google.firebase.database.ktx.database
@@ -97,8 +98,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         obterLocalizacaoAtual { lat, lon ->
             val localAtual = LatLng(lat, lon)
-            googleMap.addMarker(MarkerOptions().position(localAtual).title("Você está aqui"))
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(localAtual, 16f))
+            marcadorMeu = googleMap.addMarker(
+                MarkerOptions().position(localAtual).title("Você")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+            )
+
         }
     }
 
@@ -106,19 +110,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val nome = editNomeDispositivo.text.toString().trim()
         val intervalo = editIntervaloEnvio.text.toString().toIntOrNull()
         val distanciaMinima = editDistanciaAlerta.text.toString().toDoubleOrNull()
-        val prefs = getSharedPreferences("app_config", MODE_PRIVATE)
-        prefs.edit()
-            .putString("nome_dispositivo", nome)
-            .putInt("intervalo_envio", intervalo ?: 5)
-            .putFloat("distancia_alerta", distanciaMinima!!.toFloat())
-            .putBoolean("alerta_sonoro", checkboxAlertaSonoro.isChecked)
-            .apply()
-
 
         if (nome.isEmpty() || intervalo == null || distanciaMinima == null) {
             Toast.makeText(this, "Preencha todos os campos corretamente.", Toast.LENGTH_SHORT).show()
             return
         }
+
+        // Salva as configurações do usuário
+        val prefs = getSharedPreferences("app_config", MODE_PRIVATE)
+        prefs.edit()
+            .putString("nome_dispositivo", nome)
+            .putInt("intervalo_envio", intervalo)
+            .putFloat("distancia_alerta", distanciaMinima.toFloat())
+            .putBoolean("alerta_sonoro", checkboxAlertaSonoro.isChecked)
+            .putBoolean("transmissao_ativa", true)
+            .apply()
 
         transmissaoAtiva = true
         btnAtivarTransmissao.text = "PARAR TRANSMISSÃO"
@@ -127,6 +133,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         Toast.makeText(this, "Transmissão iniciada.", Toast.LENGTH_SHORT).show()
 
+        // Inicia o serviço de localização em segundo plano
+        // Inicia o serviço de localização em segundo plano
+        val intent = Intent(this, LocationService::class.java)
+        intent.putExtra("nome_dispositivo", nome)
+        intent.putExtra("intervalo_envio", intervalo)
+        startService(intent)
+
+        // Inicia ciclo de leitura do outro aparelho
         runnable = object : Runnable {
             override fun run() {
                 enviarCoordenadas(nome)
@@ -135,18 +149,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         handler.post(runnable)
+
     }
+
 
     private fun pararTransmissao() {
         transmissaoAtiva = false
-        handler.removeCallbacks(runnable)
+
+        // Para o serviço de localização
+        stopService(Intent(this, LocationService::class.java))
+
+        // Atualiza o estado salvo
+        val prefs = getSharedPreferences("app_config", MODE_PRIVATE)
+        prefs.edit()
+            .putBoolean("transmissao_ativa", false)
+            .apply()
+
+        // Atualiza o visual do botão
         btnAtivarTransmissao.text = "ATIVAR TRANSMISSÃO"
         btnAtivarTransmissao.setBackgroundColor(ContextCompat.getColor(this, R.color.verde_ativo))
         btnAtivarTransmissao.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play_arrow, 0, 0, 0)
+        handler.removeCallbacks(runnable)
         Toast.makeText(this, "Transmissão encerrada.", Toast.LENGTH_SHORT).show()
     }
 
-    // 🚧 Stub - envia a coordenada para o Firebase
+
+    //  envia a coordenada para o Firebase
     private fun enviarCoordenadas(nomeDispositivo: String) {
         obterLocalizacaoAtual { latitude, longitude ->
 
@@ -178,8 +206,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         )
                     } else {
                         marcadorMeu?.position = minhaPosicao
-                        centralizarMapaSeAmbosPresentes()
                     }
+
+                    centralizarMapaSeAmbosPresentes()
                 }
             }
         }
@@ -189,17 +218,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun centralizarMapaSeAmbosPresentes() {
         if (::googleMap.isInitialized && marcadorMeu != null && marcadorOutro != null) {
+            val pos1 = marcadorMeu!!.position
+            val pos2 = marcadorOutro!!.position
+
+            // Se os pontos são quase iguais, pule a centralização para evitar erro de bounds inválido
+            if (pos1 == pos2) {
+                Log.d("MAP_DEBUG", "Pontos iguais, não centralizando")
+                return
+            }
+
             val builder = LatLngBounds.Builder()
-            builder.include(marcadorMeu!!.position)
-            builder.include(marcadorOutro!!.position)
+                .include(pos1)
+                .include(pos2)
+
             val bounds = builder.build()
+            val padding = 100
 
-            val padding = 100 // margem (em pixels) ao redor dos pontos
-            val cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, padding)
-
-            googleMap.animateCamera(cameraUpdate)
+            Log.d("MAP_DEBUG", "Centralizando entre: $pos1 e $pos2")
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, padding))
         }
     }
+
 
     private fun calcularDistanciaEmMetros(
         lat1: Double, lon1: Double,
@@ -219,7 +258,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
-    // 🚧 Stub - lê coordenadas do outro e calcula distância
+    // lê coordenadas do outro e calcula distância
     private fun lerCoordenadasDoOutro(nomeDispositivoAtual: String, distanciaMinima: Double) {
         obterLocalizacaoAtual { minhaLat, minhaLon ->
 
@@ -247,8 +286,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                                             )
                                         } else {
                                             marcadorOutro?.position = localOutro
-                                            centralizarMapaSeAmbosPresentes()
+
                                         }
+                                        centralizarMapaSeAmbosPresentes()
                                     }
 
                                     textDistanciaAtual.text = "Distância até $nomeOutro: %.2f m".format(distancia)
@@ -337,6 +377,3 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mediaPlayer = null
     }
 }
-
-
-
